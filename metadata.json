@@ -1,0 +1,7 @@
+{
+  "name": "xMask",
+  "description": "",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
