@@ -65,11 +65,6 @@ const App: React.FC = () => {
                     <ICONS.WhaleLogo className="w-28 h-28 transition-transform duration-500 group-hover:scale-110 drop-shadow-sm" />
                   )}
                 </div>
-                <div className="absolute bottom-1 right-1 bg-white w-6 h-6 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full relative">
-                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
-                  </div>
-                </div>
               </div>
               
               <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1 text-center">
@@ -129,9 +124,6 @@ const App: React.FC = () => {
               <span className="text-[#33b5ff]">x</span>Mask
             </h1>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-           <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-100">Online</div>
         </div>
       </header>
 
