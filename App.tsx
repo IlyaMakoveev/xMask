@@ -1,11 +1,46 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewState } from './types';
 import { ICONS } from './constants';
 import Dashboard from './components/Dashboard';
 
+// Расширяем интерфейс Window для работы с Telegram
+declare global {
+  interface Window {
+    Telegram: any;
+  }
+}
+
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewState>('dashboard');
+  const [userData, setUserData] = useState<{
+    id: string;
+    name: string;
+    username?: string;
+    photoUrl?: string;
+  }>({
+    id: '882102',
+    name: 'xMask Пользователь'
+  });
+
+  useEffect(() => {
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand(); // Развернуть на весь экран
+      tg.ready();
+      
+      const user = tg.initDataUnsafe?.user;
+      if (user) {
+        setUserData({
+          id: user.id.toString(),
+          name: `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`,
+          username: user.username,
+          photoUrl: user.photo_url
+        });
+      }
+    }
+  }, []);
 
   const renderView = () => {
     switch (activeView) {
@@ -13,44 +48,59 @@ const App: React.FC = () => {
       case 'profile': return (
         <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500">
           {/* Member Card */}
-          <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden group">
+          <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden group shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-[#33b5ff]/10 to-transparent opacity-50"></div>
             <div className="absolute top-0 right-0 w-40 h-40 bg-[#33b5ff]/5 blur-[60px] rounded-full -mr-20 -mt-20"></div>
             
             <div className="relative z-10 flex flex-col items-center">
               <div className="relative mb-6">
-                {/* Avatar Container WITHOUT background */}
                 <div className="relative flex items-center justify-center">
-                  <ICONS.WhaleLogo className="w-28 h-28 transition-transform duration-500 group-hover:scale-110 drop-shadow-sm" />
+                  {userData.photoUrl ? (
+                    <img 
+                      src={userData.photoUrl} 
+                      alt="Avatar" 
+                      className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <ICONS.WhaleLogo className="w-28 h-28 transition-transform duration-500 group-hover:scale-110 drop-shadow-sm" />
+                  )}
                 </div>
-                {/* Online Indicator repositioned for no-bg logo */}
-                <div className="absolute bottom-2 right-2 bg-white w-6 h-6 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
+                <div className="absolute bottom-1 right-1 bg-white w-6 h-6 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
                   <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full relative">
                     <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
                   </div>
                 </div>
               </div>
               
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">xMask Премиум</h2>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1 text-center">
+                {userData.name}
+              </h2>
+              {userData.username && (
+                <p className="text-[#33b5ff] text-xs font-bold mb-4">@{userData.username}</p>
+              )}
               
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center w-full mt-2">
                 <div className="bg-white/50 border border-white/80 p-4 px-10 rounded-3xl text-center backdrop-blur-sm min-w-[140px] shadow-sm">
                   <div className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">ID пользователя</div>
-                  <div className="text-slate-700 font-extrabold text-sm font-mono tracking-tight">#882102</div>
+                  <div className="text-slate-700 font-extrabold text-sm font-mono tracking-tight">#{userData.id}</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Action List */}
-          <div className="glass rounded-[2rem] p-2 space-y-1">
+          <div className="glass rounded-[2rem] p-2 space-y-1 shadow-sm">
             <ProfileItem label="История платежей" subLabel="Посмотреть все транзакции" />
             <ProfileItem label="Наш канал" subLabel="Последние новости и обновления" onClick={() => window.open('https://t.me/your_channel', '_blank')} />
             <ProfileItem label="Управление устройствами" subLabel="2 активные сессии" />
             <div className="mt-4 p-4">
               <button 
                 className="w-full py-4 bg-gradient-to-r from-[#33b5ff] to-[#0084ff] rounded-2xl text-[13px] font-black text-white shadow-xl shadow-blue-400/30 active:scale-[0.98] transition-all uppercase tracking-widest"
-                onClick={() => window.open('https://t.me/your_support', '_blank')}
+                onClick={() => {
+                  const tg = window.Telegram?.WebApp;
+                  if (tg) tg.openTelegramLink('https://t.me/your_support');
+                  else window.open('https://t.me/your_support', '_blank');
+                }}
               >
                 Связаться с поддержкой
               </button>
@@ -79,6 +129,9 @@ const App: React.FC = () => {
               <span className="text-[#33b5ff]">x</span>Mask
             </h1>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+           <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-100">Online</div>
         </div>
       </header>
 
