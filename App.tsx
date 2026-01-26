@@ -19,22 +19,19 @@ const App: React.FC = () => {
             
             <div className="relative z-10 flex flex-col items-center">
               <div className="relative mb-6">
-                {/* Avatar Container with refined position and styling */}
-                <div className="relative p-1 bg-white rounded-[2.2rem] shadow-xl shadow-blue-400/10 border border-slate-100">
-                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-tr from-[#33b5ff] to-[#0084ff] flex items-center justify-center text-3xl font-black text-white shadow-inner transition-transform duration-500">
-                    XM
-                  </div>
+                {/* Avatar Container WITHOUT background */}
+                <div className="relative flex items-center justify-center">
+                  <ICONS.WhaleLogo className="w-28 h-28 transition-transform duration-500 group-hover:scale-110 drop-shadow-sm" />
                 </div>
-                {/* Online Indicator perfectly positioned */}
-                <div className="absolute bottom-1 right-1 bg-white w-7 h-7 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full relative">
+                {/* Online Indicator repositioned for no-bg logo */}
+                <div className="absolute bottom-2 right-2 bg-white w-6 h-6 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
+                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full relative">
                     <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
                   </div>
                 </div>
               </div>
               
               <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">xMask Премиум</h2>
-              <p className="text-slate-400 font-bold text-xs uppercase tracking-[0.2em] mb-8">Верифицированный участник</p>
               
               <div className="flex justify-center w-full">
                 <div className="bg-white/50 border border-white/80 p-4 px-10 rounded-3xl text-center backdrop-blur-sm min-w-[140px] shadow-sm">
@@ -74,14 +71,13 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between mb-10 relative z-10 px-1">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 flex items-center justify-center text-[#33b5ff] bg-white rounded-2xl shadow-sm border border-slate-50">
-            <ICONS.WhaleLogo className="w-8 h-8" />
+          <div className="w-14 h-14 flex items-center justify-center overflow-hidden">
+            <ICONS.WhaleLogo className="w-full h-full" />
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
               <span className="text-[#33b5ff]">x</span>Mask
             </h1>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5">Безопасный шлюз</p>
           </div>
         </div>
       </header>
