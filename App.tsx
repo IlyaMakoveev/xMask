@@ -11,27 +11,53 @@ const App: React.FC = () => {
     switch (activeView) {
       case 'dashboard': return <Dashboard />;
       case 'profile': return (
-        <div className="p-8 text-center glass rounded-3xl animate-in zoom-in-95 duration-300">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#33b5ff] to-[#0084ff] rounded-full mx-auto mb-6 flex items-center justify-center text-3xl font-bold shadow-xl shadow-blue-500/20 text-white">
-            XM
+        <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500">
+          {/* Member Card */}
+          <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#33b5ff]/10 to-transparent opacity-50"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#33b5ff]/5 blur-[60px] rounded-full -mr-20 -mt-20"></div>
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="relative mb-6">
+                {/* Avatar Container with refined position and styling */}
+                <div className="relative p-1 bg-white rounded-[2.2rem] shadow-xl shadow-blue-400/10 border border-slate-100">
+                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-tr from-[#33b5ff] to-[#0084ff] flex items-center justify-center text-3xl font-black text-white shadow-inner transition-transform duration-500">
+                    XM
+                  </div>
+                </div>
+                {/* Online Indicator perfectly positioned */}
+                <div className="absolute bottom-1 right-1 bg-white w-7 h-7 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full relative">
+                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">xMask Премиум</h2>
+              <p className="text-slate-400 font-bold text-xs uppercase tracking-[0.2em] mb-8">Верифицированный участник</p>
+              
+              <div className="flex justify-center w-full">
+                <div className="bg-white/50 border border-white/80 p-4 px-10 rounded-3xl text-center backdrop-blur-sm min-w-[140px] shadow-sm">
+                  <div className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">ID пользователя</div>
+                  <div className="text-slate-700 font-extrabold text-sm font-mono tracking-tight">#882102</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-slate-800 mb-8">xMask User</h2>
-          <div className="space-y-4">
-            <button className="w-full py-3 bg-slate-50 rounded-xl text-sm font-semibold border border-slate-200 text-slate-700 active:bg-slate-100 transition-colors">
-              Billing History
-            </button>
-            <button 
-              className="w-full py-3 bg-[#33b5ff]/10 rounded-xl text-sm font-bold border border-[#33b5ff]/20 text-[#33b5ff] active:bg-[#33b5ff]/20 transition-colors"
-              onClick={() => window.open('https://t.me/your_channel', '_blank')}
-            >
-              Our Channel
-            </button>
-            <button 
-              className="w-full py-3 bg-[#33b5ff] rounded-xl text-sm font-bold text-white shadow-lg shadow-[#33b5ff]/20 active:scale-[0.98] transition-all"
-              onClick={() => window.open('https://t.me/your_support', '_blank')}
-            >
-              Support Chat
-            </button>
+
+          {/* Action List */}
+          <div className="glass rounded-[2rem] p-2 space-y-1">
+            <ProfileItem label="История платежей" subLabel="Посмотреть все транзакции" />
+            <ProfileItem label="Наш канал" subLabel="Последние новости и обновления" onClick={() => window.open('https://t.me/your_channel', '_blank')} />
+            <ProfileItem label="Управление устройствами" subLabel="2 активные сессии" />
+            <div className="mt-4 p-4">
+              <button 
+                className="w-full py-4 bg-gradient-to-r from-[#33b5ff] to-[#0084ff] rounded-2xl text-[13px] font-black text-white shadow-xl shadow-blue-400/30 active:scale-[0.98] transition-all uppercase tracking-widest"
+                onClick={() => window.open('https://t.me/your_support', '_blank')}
+              >
+                Связаться с поддержкой
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -40,48 +66,66 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 pt-6 pb-24 relative overflow-hidden flex flex-col">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-[-10%] left-[-20%] w-[300px] h-[300px] bg-[#33b5ff]/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-20%] w-[300px] h-[300px] bg-blue-400/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <div className="min-h-screen max-w-md mx-auto px-5 pt-8 pb-32 relative overflow-hidden flex flex-col">
+      {/* Background Decor */}
+      <div className="absolute top-[-5%] left-[-15%] w-[350px] h-[350px] bg-[#33b5ff]/10 rounded-full blur-[120px] pointer-events-none animate-float"></div>
+      <div className="absolute bottom-[-5%] right-[-15%] w-[350px] h-[350px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none animate-float" style={{ animationDelay: '2s' }}></div>
 
       {/* Header */}
-      <header className="flex items-center gap-3 mb-8 relative z-10 px-2">
-        <div className="w-10 h-10 flex items-center justify-center text-[#33b5ff]">
-          <ICONS.WhaleLogo className="w-full h-auto" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-black">
-            <span className="text-[#33b5ff]">x</span>Mask
-          </h1>
+      <header className="flex items-center justify-between mb-10 relative z-10 px-1">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 flex items-center justify-center text-[#33b5ff] bg-white rounded-2xl shadow-sm border border-slate-50">
+            <ICONS.WhaleLogo className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
+              <span className="text-[#33b5ff]">x</span>Mask
+            </h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5">Безопасный шлюз</p>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex-1 overflow-hidden">
+      <main className="relative z-10 flex-1">
         {renderView()}
       </main>
 
-      {/* Navigation - Refined Aesthetics with Accent Color */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[70%] max-w-[260px] z-50">
-        <nav className="glass bg-white/80 rounded-full p-1.5 flex justify-between items-center shadow-[0_20px_40px_rgba(51,181,255,0.15)] border border-white/80">
+      {/* Bottom Nav */}
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[75%] max-w-[280px] z-50">
+        <nav className="glass bg-white/90 rounded-[2.5rem] p-2 flex justify-between items-center shadow-2xl shadow-blue-900/10 border border-white/50 backdrop-blur-2xl">
           <NavButton 
             active={activeView === 'dashboard'} 
             onClick={() => setActiveView('dashboard')}
             icon={<ICONS.Dashboard className="w-5 h-5" />}
-            label="Home"
+            label="Главная"
           />
           <NavButton 
             active={activeView === 'profile'} 
             onClick={() => setActiveView('profile')}
             icon={<ICONS.Profile className="w-5 h-5" />}
-            label="User"
+            label="Профиль"
           />
         </nav>
       </div>
     </div>
   );
 };
+
+const ProfileItem: React.FC<{ label: string; subLabel: string; onClick?: () => void }> = ({ label, subLabel, onClick }) => (
+  <button 
+    onClick={onClick}
+    className="w-full flex items-center justify-between p-4 hover:bg-slate-50/50 rounded-2xl transition-all group"
+  >
+    <div className="text-left">
+      <div className="text-sm font-extrabold text-slate-800 group-hover:text-[#33b5ff] transition-colors">{label}</div>
+      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{subLabel}</div>
+    </div>
+    <div className="text-slate-300 group-hover:text-slate-500 transition-all transform group-hover:translate-x-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  </button>
+);
 
 interface NavButtonProps {
   active: boolean;
@@ -93,11 +137,11 @@ interface NavButtonProps {
 const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) => (
   <button 
     onClick={onClick}
-    className={`flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] relative overflow-hidden px-5 py-3 rounded-full ${active ? 'bg-[#33b5ff] text-white shadow-lg shadow-[#33b5ff]/40 flex-[1.5]' : 'text-slate-400 hover:text-slate-600 flex-1'}`}
+    className={`flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] relative overflow-hidden px-6 py-3.5 rounded-full ${active ? 'bg-[#33b5ff] text-white shadow-xl shadow-blue-400/40 flex-[1.6]' : 'text-slate-400 hover:text-slate-600 flex-1'}`}
   >
-    <div className={`relative z-10 flex items-center justify-center gap-2 ${active ? 'scale-105' : ''}`}>
+    <div className={`relative z-10 flex items-center justify-center gap-2.5 ${active ? 'scale-105' : ''}`}>
       {icon}
-      <span className={`text-[11px] font-bold transition-all duration-500 overflow-hidden whitespace-nowrap ${active ? 'max-w-[60px] opacity-100' : 'max-w-0 opacity-0'}`}>
+      <span className={`text-[12px] font-black transition-all duration-700 overflow-hidden whitespace-nowrap tracking-wider ${active ? 'max-w-[70px] opacity-100 translate-x-0' : 'max-w-0 opacity-0 -translate-x-2'}`}>
         {label}
       </span>
     </div>

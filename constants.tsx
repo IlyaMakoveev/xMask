@@ -5,7 +5,7 @@ import { UserStats } from './types';
 export const MOCK_USER: UserStats = {
   usedTraffic: 42.5,
   totalTraffic: 100,
-  expiryDate: '2024-12-31',
+  expiryDate: '31.12.2024',
   status: 'active',
   subscriptionLink: 'vless://789-abc-def@server.remnawave.io:443?security=reality&sni=google.com&fp=chrome&type=grpc&serviceName=grpc#Premium-Global'
 };
