@@ -76,7 +76,7 @@ const App: React.FC = () => {
               
               <div className="flex justify-center w-full mt-2">
                 <div className="bg-white/50 border border-white/80 p-4 px-10 rounded-3xl text-center backdrop-blur-sm min-w-[140px] shadow-sm">
-                  <div className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">ID пользователя</div>
+                  <div className="text-slate-400 text-[9px] font-black uppercase tracking-normal mb-1">ID пользователя</div>
                   <div className="text-slate-700 font-extrabold text-sm font-mono tracking-tight">#{userData.id}</div>
                 </div>
               </div>
@@ -90,7 +90,7 @@ const App: React.FC = () => {
             <ProfileItem label="Управление устройствами" subLabel="2 активные сессии" />
             <div className="mt-4 p-4">
               <button 
-                className="w-full py-4 bg-gradient-to-r from-[#33b5ff] to-[#0084ff] rounded-2xl text-[13px] font-black text-white shadow-xl shadow-blue-400/30 active:scale-[0.98] transition-all uppercase tracking-widest"
+                className="w-full py-4 bg-gradient-to-r from-[#33b5ff] to-[#0084ff] rounded-2xl text-[13px] font-black text-white shadow-xl shadow-blue-400/30 active:scale-[0.98] transition-all uppercase tracking-normal"
                 onClick={() => {
                   const tg = window.Telegram?.WebApp;
                   if (tg) tg.openTelegramLink('https://t.me/your_support');
@@ -118,11 +118,6 @@ const App: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 flex items-center justify-center overflow-hidden">
             <ICONS.WhaleLogo className="w-full h-full" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
-              <span className="text-[#33b5ff]">x</span>Mask
-            </h1>
           </div>
         </div>
       </header>
@@ -160,7 +155,7 @@ const ProfileItem: React.FC<{ label: string; subLabel: string; onClick?: () => v
   >
     <div className="text-left">
       <div className="text-sm font-extrabold text-slate-800 group-hover:text-[#33b5ff] transition-colors">{label}</div>
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{subLabel}</div>
+      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-normal mt-0.5">{subLabel}</div>
     </div>
     <div className="text-slate-300 group-hover:text-slate-500 transition-all transform group-hover:translate-x-1">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -182,7 +177,7 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) =
   >
     <div className={`relative z-10 flex items-center justify-center gap-2.5 ${active ? 'scale-105' : ''}`}>
       {icon}
-      <span className={`text-[12px] font-black transition-all duration-700 overflow-hidden whitespace-nowrap tracking-wider ${active ? 'max-w-[70px] opacity-100 translate-x-0' : 'max-w-0 opacity-0 -translate-x-2'}`}>
+      <span className={`text-[12px] font-black transition-all duration-700 overflow-hidden whitespace-nowrap tracking-normal ${active ? 'max-w-[70px] opacity-100 translate-x-0' : 'max-w-0 opacity-0 -translate-x-2'}`}>
         {label}
       </span>
     </div>

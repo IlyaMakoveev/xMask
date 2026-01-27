@@ -1,11 +1,29 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MOCK_USER, ICONS } from '../constants';
+import { UserStats } from '../types';
+import { parseVless } from '../utils/vlessParser';
 
 const Dashboard: React.FC = () => {
-  const trafficPercent = (MOCK_USER.usedTraffic / MOCK_USER.totalTraffic) * 100;
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<UserStats>(MOCK_USER);
+
+  const fetchStats = async () => {
+    setLoading(true);
+    // Имитация запроса к бэкенду
+    setTimeout(() => {
+      setData(MOCK_USER);
+      setLoading(false);
+    }, 800);
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const trafficPercent = (data.usedTraffic / data.totalTraffic) * 100;
   
-  // Logic for days remaining
+  // Вычисляем оставшиеся дни (упрощенно)
   const daysRemaining = 12; 
   const totalDays = 30; 
 
@@ -15,6 +33,16 @@ const Dashboard: React.FC = () => {
     'suspended': 'Приостановлен'
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-5 animate-pulse">
+        <div className="glass rounded-[2rem] h-64 w-full bg-slate-100/50"></div>
+        <div className="h-16 w-full bg-slate-100/50 rounded-2xl"></div>
+        <div className="glass rounded-[2rem] h-48 w-full bg-slate-100/50"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-4">
       {/* Traffic Stats Card */}
@@ -23,15 +51,24 @@ const Dashboard: React.FC = () => {
         
         <div className="flex justify-between items-start mb-6 relative z-10">
           <div>
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Общий объем</div>
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Общий объем</div>
             <div className="flex items-baseline gap-1">
-              <span className="text-5xl font-extrabold text-slate-900 tracking-tighter">{MOCK_USER.usedTraffic}</span>
-              <span className="text-slate-400 text-lg font-semibold italic">/ {MOCK_USER.totalTraffic}GB</span>
+              <span className="text-5xl font-extrabold text-slate-900 tracking-tighter">{data.usedTraffic}</span>
+              <span className="text-slate-400 text-lg font-semibold italic">/ {data.totalTraffic}GB</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[11px] font-extrabold shadow-sm">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-            {statusMap[MOCK_USER.status]?.toUpperCase() || MOCK_USER.status.toUpperCase()}
+          <div className="flex flex-col items-end gap-2">
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[11px] font-extrabold shadow-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                {statusMap[data.status]?.toUpperCase() || data.status.toUpperCase()}
+              </div>
+              <button 
+                onClick={fetchStats}
+                className="p-2 text-slate-300 hover:text-[#33b5ff] transition-colors"
+                title="Обновить данные"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              </button>
           </div>
         </div>
 
@@ -55,7 +92,7 @@ const Dashboard: React.FC = () => {
               <div className="text-slate-900 font-extrabold text-sm tracking-tight mb-0.5">Премиум План</div>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#33b5ff]"></span>
-                <span className="text-slate-400 text-[10px] font-bold">Истекает {MOCK_USER.expiryDate}</span>
+                <span className="text-slate-400 text-[10px] font-bold">Истекает {data.expiryDate}</span>
               </div>
             </div>
           </div>
@@ -77,10 +114,10 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Pay Now Button - Large Accent */}
+      {/* Pay Now Button */}
       <div className="px-1">
         <button 
-          className="w-full py-5 bg-[#33b5ff] text-white text-[13px] font-black rounded-[1.5rem] hover:bg-[#2da3e5] transition-all active:scale-[0.97] shadow-2xl shadow-blue-400/30 uppercase tracking-[0.2em] relative overflow-hidden group"
+          className="w-full py-5 bg-[#33b5ff] text-white text-[13px] font-black rounded-[1.5rem] hover:bg-[#2da3e5] transition-all active:scale-[0.97] shadow-2xl shadow-blue-400/30 uppercase tracking-normal relative overflow-hidden group"
           onClick={() => alert('Перенаправление на платежный шлюз xMask...')}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -91,21 +128,21 @@ const Dashboard: React.FC = () => {
       {/* Subscription Information Block */}
       <div className="glass rounded-[2rem] p-7 border border-slate-100/50">
         <div className="mb-6">
-          <h4 className="text-xs font-black flex items-center gap-2.5 text-slate-400 uppercase tracking-widest">
+          <h4 className="text-xs font-black flex items-center gap-2.5 text-slate-400 uppercase tracking-wider">
             <div className="w-1.5 h-1.5 bg-[#33b5ff] rounded-full"></div>
             Конфиг подписки
           </h4>
         </div>
 
-        <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-between mb-5 group">
+        <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-between mb-8 group">
           <code className="text-[10px] text-slate-500 truncate max-w-[180px] font-mono font-medium opacity-80 group-hover:opacity-100 transition-opacity">
-            {MOCK_USER.subscriptionLink}
+            {data.subscriptionLink}
           </code>
           <button 
             className="p-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-400 active:scale-90"
             onClick={() => {
-              navigator.clipboard.writeText(MOCK_USER.subscriptionLink);
-              alert('Скопировано в буфер обмена!');
+              navigator.clipboard.writeText(data.subscriptionLink);
+              alert('Скопировано!');
             }}
           >
             <ICONS.Copy className="w-4 h-4" />
@@ -113,9 +150,9 @@ const Dashboard: React.FC = () => {
         </div>
         
         <button 
-          className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-200 text-[12px] uppercase tracking-[0.15em]"
+          className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-black transition-all active:scale-[0.98] shadow-lg shadow-slate-200 text-[12px] uppercase tracking-normal"
           onClick={() => {
-            navigator.clipboard.writeText(MOCK_USER.subscriptionLink);
+            navigator.clipboard.writeText(data.subscriptionLink);
             alert('Скопировано в буфер обмена!');
           }}
         >

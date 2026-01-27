@@ -1,10 +1,20 @@
 
 export interface UserStats {
-  usedTraffic: number; // in GB
-  totalTraffic: number; // in GB
-  expiryDate: string;
+  usedTraffic: number; // в ГБ
+  totalTraffic: number; // в ГБ
+  expiryDate: string; // Формат: DD.MM.YYYY
   status: 'active' | 'expired' | 'suspended';
   subscriptionLink: string;
+  // Технические детали, распарсенные из подписки
+  details?: {
+    address: string;
+    port: string;
+    uuid: string;
+    security: string;
+    sni: string;
+    type: string;
+    serviceName?: string;
+  };
 }
 
 export interface ServerNode {
