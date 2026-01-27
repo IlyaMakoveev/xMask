@@ -28,7 +28,7 @@ app.get('/api/user/stats', (req, res) => {
   // 1. Ищем пользователя в БД или запрашиваем API панели (например, 3x-ui)
   // 2. Формируем ответ в формате UserStats (см. types.ts)
   res.json({
-    usedTraffic: 15.4, // измеряется в ГБ
+    usedTraffic: 15.4, 
     totalTraffic: 100,
     expiryDate: '20.10.2024',
     status: 'active',
@@ -41,48 +41,63 @@ app.get('/api/user/stats', (req, res) => {
 
 Для выдачи реальных подписок используйте API популярных панелей управления:
 
-*   **3x-ui**: Имеет встроенный API на порту 2053. Позволяет программно создавать "Inbounds" и "Clients".
-*   **Marzban**: Мощный API на Python, идеально подходит для автоматизации больших проектов.
+*   **3x-ui**: Имеет встроенный API на порту 2053.
+*   **Marzban**: Мощный API на Python.
 
 Когда пользователь оплачивает подписку:
-1.  Ваш бэкенд вызывает API панели для создания нового UUID.
-2.  Бэкенд сохраняет UUID в базе данных.
-3.  При открытии Mini App бэкенд возвращает готовую ссылку `vless://...`.
+1.  Ваш бэкенд вызывает API панели для создания или продления клиента.
+2.  Обновляет дату истечения (`expiry_time`) в панели.
 
 ## 4. Настройка Telegram Bot
 
-1.  Перейдите к **@BotFather** в Telegram.
-2.  Создайте нового бота `/newbot`.
-3.  Используйте команду `/newapp` для создания Mini App.
-4.  Вставьте URL вашего развернутого фронтенда (обязательно **HTTPS**).
-5.  Получите короткую ссылку вида `t.me/your_bot/app_name`.
+1.  Перейдите к **@BotFather**.
+2.  Создайте нового бота `/newbot` и Mini App `/newapp`.
+3.  Вставьте URL вашего развернутого фронтенда (обязательно **HTTPS**).
 
-## 5. Изменения в коде фронтенда
+## 5. Прием платежей через YooMoney (Quickpay)
 
-Чтобы приложение начало получать реальные данные, измените функцию `fetchStats` в `components/Dashboard.tsx`:
+Приложение использует форму Quickpay для перенаправления пользователя на оплату.
 
-```typescript
-const fetchStats = async () => {
-  setLoading(true);
-  try {
-    const tg = window.Telegram?.WebApp;
-    const response = await fetch('https://your-api.com/api/user/stats', {
-      headers: {
-        'x-tg-data': tg?.initData || '' // Передаем данные авторизации
-      }
-    });
-    const result = await response.json();
-    setData(result);
-  } catch (error) {
-    console.error("Ошибка загрузки данных", error);
-  } finally {
-    setLoading(false);
+### Настройка в кабинете YooMoney:
+1. Зайдите в [Настройки уведомлений](https://yoomoney.ru/transfer/myservices/http-notification).
+2. Укажите ваш **Notification URL** (например, `https://api.your-vpn.com/webhooks/yoomoney`).
+3. Скопируйте **Секретное слово** (Secret) для проверки подлинности уведомлений.
+
+### Обработка уведомления на бэкенде (Node.js):
+Когда оплата пройдет, YooMoney отправит POST-запрос на ваш сервер.
+
+```javascript
+const crypto = require('crypto');
+
+app.post('/webhooks/yoomoney', (req, res) => {
+  const {
+    notification_type, operation_id, amount, withdraw_amount,
+    currency, datetime, sender, codepro, label, sha1_hash
+  } = req.body;
+
+  // 1. Проверка подписи (sha1_hash)
+  // Формула: notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
+  const secret = 'ВАШЕ_СЕКРЕТНОЕ_СЛОВО';
+  const checkString = `${notification_type}&${operation_id}&${amount}&${currency}&${datetime}&${sender}&${codepro}&${secret}&${label}`;
+  const myHash = crypto.createHash('sha1').update(checkString).digest('hex');
+
+  if (myHash !== sha1_hash) {
+    return res.status(400).send('Invalid signature');
   }
-};
+
+  // 2. label содержит ID пользователя Telegram (переданный из Payment.tsx)
+  const userId = label;
+  
+  // 3. Продлеваем подписку
+  console.log(`Пользователь ${userId} оплатил ${amount} руб.`);
+  // Здесь вызываем API панели и обновляем БД
+  
+  res.status(200).send('OK');
+});
 ```
 
 ## 6. Безопасность и SSL
 
-*   **HTTPS**: Telegram Mini Apps работают только через защищенное соединение. Используйте Cloudflare или Let's Encrypt.
-*   **CORS**: Не забудьте настроить CORS на вашем бэкенде, чтобы разрешить запросы с домена, где размещен фронтенд.
-*   **Token**: Никогда не храните `BOT_TOKEN` на фронтенде. Он должен быть только на сервере (бэкенде).
+*   **HTTPS**: Обязателен для Telegram Mini Apps и для приема уведомлений от YooMoney.
+*   **CORS**: Настройте разрешение запросов с домена фронтенда.
+*   **Secrets**: Никогда не публикуйте `BOT_TOKEN` и `Yoomoney Secret` в открытом доступе.

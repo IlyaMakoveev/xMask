@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { ViewState } from './types';
 import { ICONS } from './constants';
 import Dashboard from './components/Dashboard';
+import Payment from './components/Payment';
 
 // Расширяем интерфейс Window для работы с Telegram
 declare global {
@@ -27,7 +28,7 @@ const App: React.FC = () => {
     // Инициализация Telegram WebApp
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      tg.expand(); // Развернуть на весь экран
+      tg.expand();
       tg.ready();
       
       const user = tg.initDataUnsafe?.user;
@@ -44,7 +45,10 @@ const App: React.FC = () => {
 
   const renderView = () => {
     switch (activeView) {
-      case 'dashboard': return <Dashboard />;
+      case 'dashboard': 
+        return <Dashboard onRenew={() => setActiveView('payment')} />;
+      case 'payment': 
+        return <Payment userId={userData.id} onBack={() => setActiveView('dashboard')} />;
       case 'profile': return (
         <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500">
           {/* Member Card */}
@@ -103,7 +107,7 @@ const App: React.FC = () => {
           </div>
         </div>
       );
-      default: return <Dashboard />;
+      default: return <Dashboard onRenew={() => setActiveView('payment')} />;
     }
   };
 
@@ -128,22 +132,24 @@ const App: React.FC = () => {
       </main>
 
       {/* Bottom Nav */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[75%] max-w-[280px] z-50">
-        <nav className="glass bg-white/90 rounded-[2.5rem] p-2 flex justify-between items-center shadow-2xl shadow-blue-900/10 border border-white/50 backdrop-blur-2xl">
-          <NavButton 
-            active={activeView === 'dashboard'} 
-            onClick={() => setActiveView('dashboard')}
-            icon={<ICONS.Dashboard className="w-5 h-5" />}
-            label="Главная"
-          />
-          <NavButton 
-            active={activeView === 'profile'} 
-            onClick={() => setActiveView('profile')}
-            icon={<ICONS.Profile className="w-5 h-5" />}
-            label="Профиль"
-          />
-        </nav>
-      </div>
+      {activeView !== 'payment' && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[75%] max-w-[280px] z-50">
+          <nav className="glass bg-white/90 rounded-[2.5rem] p-2 flex justify-between items-center shadow-2xl shadow-blue-900/10 border border-white/50 backdrop-blur-2xl">
+            <NavButton 
+              active={activeView === 'dashboard'} 
+              onClick={() => setActiveView('dashboard')}
+              icon={<ICONS.Dashboard className="w-5 h-5" />}
+              label="Главная"
+            />
+            <NavButton 
+              active={activeView === 'profile'} 
+              onClick={() => setActiveView('profile')}
+              icon={<ICONS.Profile className="w-5 h-5" />}
+              label="Профиль"
+            />
+          </nav>
+        </div>
+      )}
     </div>
   );
 };

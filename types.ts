@@ -28,4 +28,4 @@ export interface ServerNode {
   isOnline: boolean;
 }
 
-export type ViewState = 'dashboard' | 'profile';
+export type ViewState = 'dashboard' | 'profile' | 'payment';
