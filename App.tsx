@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { ViewState } from './types';
-import { ICONS, MOCK_USER } from './constants';
+import { ICONS } from './constants';
 import Dashboard from './components/Dashboard';
 import Payment from './components/Payment';
+import ServerList from './components/ServerList';
 
 declare global {
   interface Window {
@@ -13,37 +14,34 @@ declare global {
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewState>('dashboard');
-  const [isDemo, setIsDemo] = useState(true);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showNotification, setShowNotification] = useState<{show: boolean, msg: string}>({ show: false, msg: '' });
   const [userData, setUserData] = useState({
-    id: 'DEMO-882102',
-    name: 'Пользователь Demo',
-    username: 'xmask_guest'
+    id: '882102',
+    name: 'Демо Пользователь',
+    username: 'xmask_demo',
+    photoUrl: ''
   });
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      tg.ready();
       tg.expand();
-      
+      tg.ready();
       const user = tg.initDataUnsafe?.user;
       if (user) {
-        setIsDemo(false);
         setUserData({
           id: user.id.toString(),
           name: `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`,
-          username: user.username || 'user'
+          username: user.username,
+          photoUrl: user.photo_url
         });
       }
     }
   }, []);
 
-  const handlePaymentSuccess = () => {
-    setShowSuccess(true);
-    setActiveView('dashboard');
-    // Скрываем уведомление об успехе через 4 секунды
-    setTimeout(() => setShowSuccess(false), 4000);
+  const notify = (msg: string) => {
+    setShowNotification({ show: true, msg });
+    setTimeout(() => setShowNotification({ show: false, msg: '' }), 3000);
   };
 
   const renderView = () => {
@@ -54,37 +52,39 @@ const App: React.FC = () => {
         return <Payment 
           userId={userData.id} 
           onBack={() => setActiveView('dashboard')} 
-          onSuccess={handlePaymentSuccess}
+          onDemoSuccess={() => {
+            setActiveView('dashboard');
+            notify('Подписка успешно продлена (Демо)');
+          }}
         />;
       case 'profile': return (
-        <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500">
-          <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden group shadow-xl">
+        <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500 pb-20">
+          {/* Profile Card */}
+          <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden border-white shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-[#33b5ff]/10 to-transparent opacity-50"></div>
             <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center border-4 border-white shadow-lg mb-4">
-                <ICONS.WhaleLogo className="w-14 h-14" />
+              <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-[#33b5ff]/10 shadow-lg mb-4 p-4">
+                 <ICONS.WhaleLogo className="w-full h-full" />
               </div>
-              <h2 className="text-2xl font-black text-slate-900 mb-1">{userData.name}</h2>
-              <p className="text-[#33b5ff] text-xs font-bold mb-4">@{userData.username}</p>
-              <div className="bg-white/50 border border-white/80 p-3 px-8 rounded-2xl text-center backdrop-blur-sm shadow-sm">
-                <div className="text-slate-400 text-[9px] font-black uppercase mb-0.5">ID АККАУНТА</div>
-                <div className="text-slate-700 font-extrabold text-xs font-mono">#{userData.id}</div>
+              <h2 className="text-xl font-black text-slate-900 mb-1 leading-none">{userData.name}</h2>
+              <p className="text-[#33b5ff] text-[10px] font-black uppercase tracking-widest mb-6">Premium Status</p>
+              
+              <div className="bg-white/50 border border-white p-3 px-8 rounded-2xl text-center backdrop-blur-sm shadow-sm">
+                <div className="text-slate-400 text-[8px] font-black uppercase mb-0.5">ID Аккаунта</div>
+                <div className="text-slate-700 font-extrabold text-[11px] font-mono">#{userData.id}</div>
               </div>
             </div>
           </div>
 
+          {/* Servers Section */}
+          <ServerList />
+
+          {/* Action List */}
           <div className="glass rounded-[2rem] p-2 space-y-1">
-            <ProfileItem label="История платежей" subLabel="Пусто" />
-            <ProfileItem label="Наш канал" subLabel="t.me/remnawave" />
-            <ProfileItem label="Поддержка" subLabel="Написать менеджеру" />
+            <ProfileItem label="История платежей" subLabel="Последний: 199₽ (Карта РФ)" />
+            <ProfileItem label="Настройки" subLabel="Смена протокола и SNI" />
+            <ProfileItem label="Поддержка" subLabel="Связаться в Telegram" />
           </div>
-          
-          {isDemo && (
-            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-center">
-              <p className="text-amber-700 text-[10px] font-black uppercase tracking-wider">Режим демонстрации</p>
-              <p className="text-amber-600/70 text-[10px] mt-1">Данные пользователя не загружены из Telegram API</p>
-            </div>
-          )}
         </div>
       );
       default: return <Dashboard onRenew={() => setActiveView('payment')} />;
@@ -93,33 +93,27 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-5 pt-8 pb-32 relative overflow-hidden flex flex-col">
-      {/* Success Notification */}
-      {showSuccess && (
+      {/* Notification Toast */}
+      {showNotification.show && (
         <div className="fixed top-6 left-5 right-5 z-[100] animate-in slide-in-from-top-full duration-500">
-          <div className="bg-emerald-500 text-white p-4 rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center gap-3">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            </div>
-            <div>
-              <p className="font-black text-xs uppercase">Оплата прошла успешно!</p>
-              <p className="text-[10px] opacity-80 font-bold">Подписка будет продлена в течение минуты</p>
-            </div>
+          <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-center border border-white/10">
+            <p className="font-black text-[10px] uppercase tracking-widest">{showNotification.msg}</p>
           </div>
         </div>
       )}
 
-      {/* Background Decor */}
+      {/* Decor */}
       <div className="absolute top-[-5%] left-[-15%] w-[350px] h-[350px] bg-[#33b5ff]/10 rounded-full blur-[120px] pointer-events-none animate-float"></div>
       <div className="absolute bottom-[-5%] right-[-15%] w-[350px] h-[350px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none animate-float" style={{ animationDelay: '2s' }}></div>
 
       <header className="flex items-center justify-between mb-8 relative z-10 px-1">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 flex items-center justify-center">
+          <div className="w-10 h-10">
             <ICONS.WhaleLogo className="w-full h-full" />
           </div>
-          <span className="font-black text-xl tracking-tighter text-slate-900 italic">X-MASK</span>
+          <span className="font-black text-xl tracking-tighter text-slate-900 italic"></span>
         </div>
-        {isDemo && <span className="text-[10px] font-black bg-blue-100 text-[#33b5ff] px-3 py-1 rounded-full uppercase">Demo</span>}
+        <div className="text-[10px] font-black bg-blue-50 text-[#33b5ff] px-3 py-1.5 rounded-full border border-blue-100 uppercase tracking-tight">Demo Mode</div>
       </header>
 
       <main className="relative z-10 flex-1">
@@ -133,7 +127,7 @@ const App: React.FC = () => {
               active={activeView === 'dashboard'} 
               onClick={() => setActiveView('dashboard')}
               icon={<ICONS.Dashboard className="w-5 h-5" />}
-              label="Главная"
+              label="Статус"
             />
             <NavButton 
               active={activeView === 'profile'} 
