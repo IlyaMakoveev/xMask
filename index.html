@@ -3,12 +3,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>xMask Премиум</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Montserrat instead of Inter -->
+    <!-- Font Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
@@ -19,36 +19,20 @@
             padding: 0;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            /* Предотвращение свайпа вниз для закрытия в Telegram */
+            overscroll-behavior-y: none;
         }
         .glass {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
-        }
-        .accent-text {
-            color: #33b5ff;
-        }
-        .accent-bg {
-            background-color: #33b5ff;
-        }
-        .gradient-blue {
-            background: linear-gradient(135deg, #33b5ff 0%, #0084ff 100%);
         }
         .text-gradient {
             background: linear-gradient(135deg, #33b5ff, #0084ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
         }
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -58,18 +42,47 @@
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
+        /* Стили для лоадера при загрузке страницы */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fcfdfe;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
   }
 }
 </script>
 </head>
 <body>
+    <div id="loading-screen">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-blue-100 border-t-[#33b5ff] rounded-full animate-spin"></div>
+            <p style="font-weight: 800; color: #33b5ff; font-size: 14px; margin-top: 15px;">X-MASK LOADING...</p>
+        </div>
+    </div>
     <div id="root"></div>
+    <!-- Основной вход в приложение. Для GitHub Pages путь должен быть относительным -->
+    <script type="module" src="./index.tsx"></script>
+    <script>
+        // Скрываем лоадер после загрузки JS
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loading-screen');
+            if(loader) loader.style.opacity = '0';
+            setTimeout(() => loader?.remove(), 500);
+        });
+    </script>
 </body>
 </html>
