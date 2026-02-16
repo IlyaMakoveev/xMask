@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { ViewState } from './types';
-import { ICONS } from './constants';
-import Dashboard from './components/Dashboard';
-import Payment from './components/Payment';
-import ServerList from './components/ServerList';
+import { ViewState } from './types.ts';
+import { ICONS } from './constants.tsx';
+import Dashboard from './components/Dashboard.tsx';
+import Payment from './components/Payment.tsx';
+import ServerList from './components/ServerList.tsx';
 
 declare global {
   interface Window {
