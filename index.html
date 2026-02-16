@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>xMask Премиум</title>
+    <title>xMask Premium Demo</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,6 @@
             padding: 0;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
-            /* Предотвращение свайпа вниз для закрытия в Telegram */
             overscroll-behavior-y: none;
         }
         .glass {
@@ -29,11 +28,6 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
         }
-        .text-gradient {
-            background: linear-gradient(135deg, #33b5ff, #0084ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -42,7 +36,6 @@
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
-        /* Стили для лоадера при загрузке страницы */
         #loading-screen {
             position: fixed;
             inset: 0;
@@ -54,34 +47,42 @@
             transition: opacity 0.5s ease;
         }
     </style>
-<script type="importmap">
+    <!-- Исправленный Import Map: все пути указывают на одну версию 18.2.0 -->
+    <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
     "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
   }
 }
 </script>
 </head>
 <body>
     <div id="loading-screen">
-        <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 border-4 border-blue-100 border-t-[#33b5ff] rounded-full animate-spin"></div>
-            <p style="font-weight: 800; color: #33b5ff; font-size: 14px; margin-top: 15px;">X-MASK LOADING...</p>
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-slate-100 border-t-[#33b5ff] rounded-full animate-spin"></div>
+            <p style="font-weight: 800; color: #33b5ff; font-size: 14px; letter-spacing: 1px;">X-MASK DEMO</p>
         </div>
     </div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    
     <div id="root"></div>
-    <!-- Основной вход в приложение. Для GitHub Pages путь должен быть относительным -->
+
+    <!-- Основной вход в приложение -->
     <script type="module" src="./index.tsx"></script>
+
     <script>
-        // Скрываем лоадер после загрузки JS
         window.addEventListener('load', () => {
             const loader = document.getElementById('loading-screen');
-            if(loader) loader.style.opacity = '0';
-            setTimeout(() => loader?.remove(), 500);
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500);
+            }
         });
     </script>
 </body>

@@ -19,41 +19,44 @@ const PLANS: Plan[] = [
 interface PaymentProps {
   userId: string;
   onBack: () => void;
+  onSuccess: () => void;
 }
 
-const Payment: React.FC<PaymentProps> = ({ userId, onBack }) => {
+const Payment: React.FC<PaymentProps> = ({ userId, onBack, onSuccess }) => {
   const [selectedPlan, setSelectedPlan] = useState<Plan>(PLANS[1]);
-  const [paymentType, setPaymentType] = useState<'AC' | 'PC'>('AC'); // AC - card, PC - yoomoney wallet
+  const [paymentType, setPaymentType] = useState<'AC' | 'PC'>('AC');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePay = () => {
-    // В реальности receiver должен быть вашим номером кошелька YooMoney
-    const receiver = "410011234567890"; 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://yoomoney.ru/quickpay/confirm.xml';
-
-    const params: Record<string, string> = {
-      'receiver': receiver,
-      'quickpay-form': 'shop',
-      'targets': `Оплата VPN xMask: ${selectedPlan.duration}`,
-      'paymentType': paymentType,
-      'sum': selectedPlan.price.toString(),
-      'label': userId, // Используем ID пользователя для идентификации платежа на бэкенде
-      'successURL': window.location.href,
-    };
-
-    for (const key in params) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = params[key];
-      form.appendChild(input);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    setIsProcessing(true);
+    // Имитация задержки платежного шлюза
+    setTimeout(() => {
+      setIsProcessing(false);
+      onSuccess();
+    }, 2500);
   };
+
+  if (isProcessing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-6 animate-in fade-in zoom-in-95 duration-500">
+        <div className="w-20 h-20 border-4 border-blue-50 border-t-[#33b5ff] rounded-full animate-spin"></div>
+        <div className="text-center">
+          <h3 className="text-xl font-black text-slate-900">Обработка платежа...</h3>
+          <p className="text-slate-400 text-sm mt-2">Пожалуйста, не закрывайте приложение</p>
+        </div>
+        <div className="glass p-4 rounded-2xl w-full max-w-[280px]">
+          <div className="flex justify-between text-[10px] font-black uppercase text-slate-400 mb-2">
+            <span>Тариф</span>
+            <span className="text-slate-900">{selectedPlan.name}</span>
+          </div>
+          <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+            <span>К оплате</span>
+            <span className="text-[#33b5ff]">{selectedPlan.price}₽</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
@@ -128,8 +131,8 @@ const Payment: React.FC<PaymentProps> = ({ userId, onBack }) => {
         >
           Оплатить {selectedPlan.price}₽
         </button>
-        <p className="text-center text-[9px] text-slate-400 mt-4 px-6 leading-relaxed">
-          Нажимая кнопку, вы соглашаетесь с условиями оферты и правилами сервиса. Оплата производится через защищенный шлюз YooMoney.
+        <p className="text-center text-[9px] text-slate-400 mt-4 px-6 leading-relaxed italic">
+          В ДЕМО-РЕЖИМЕ: Нажатие кнопки имитирует успешную оплату.
         </p>
       </div>
     </div>

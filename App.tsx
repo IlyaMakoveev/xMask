@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ViewState } from './types';
-import { ICONS } from './constants';
+import { ICONS, MOCK_USER } from './constants';
 import Dashboard from './components/Dashboard';
 import Payment from './components/Payment';
 
@@ -13,89 +13,78 @@ declare global {
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewState>('dashboard');
-  const [userData, setUserData] = useState<{
-    id: string;
-    name: string;
-    username?: string;
-    photoUrl?: string;
-  }>({
+  const [isDemo, setIsDemo] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [userData, setUserData] = useState({
     id: 'DEMO-882102',
-    name: 'Демо Пользователь'
+    name: 'Пользователь Demo',
+    username: 'xmask_guest'
   });
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      // Инициализация
       tg.ready();
       tg.expand();
       
-      // Настройка темы Telegram
-      const isDark = tg.colorScheme === 'dark';
-      // Можно добавить логику смены цветов под тему TG здесь
-
       const user = tg.initDataUnsafe?.user;
       if (user) {
+        setIsDemo(false);
         setUserData({
           id: user.id.toString(),
           name: `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`,
-          username: user.username,
-          photoUrl: user.photo_url
+          username: user.username || 'user'
         });
       }
-      
-      // Настройка главной кнопки (опционально)
-      tg.MainButton.setParams({
-        text: 'КУПИТЬ ПОДПИСКУ',
-        color: '#33b5ff',
-        text_color: '#ffffff'
-      });
     }
   }, []);
+
+  const handlePaymentSuccess = () => {
+    setShowSuccess(true);
+    setActiveView('dashboard');
+    // Скрываем уведомление об успехе через 4 секунды
+    setTimeout(() => setShowSuccess(false), 4000);
+  };
 
   const renderView = () => {
     switch (activeView) {
       case 'dashboard': 
         return <Dashboard onRenew={() => setActiveView('payment')} />;
       case 'payment': 
-        return <Payment userId={userData.id} onBack={() => setActiveView('dashboard')} />;
+        return <Payment 
+          userId={userData.id} 
+          onBack={() => setActiveView('dashboard')} 
+          onSuccess={handlePaymentSuccess}
+        />;
       case 'profile': return (
         <div className="space-y-6 animate-in zoom-in-95 fade-in duration-500">
           <div className="relative glass rounded-[2.5rem] p-8 overflow-hidden group shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-[#33b5ff]/10 to-transparent opacity-50"></div>
             <div className="relative z-10 flex flex-col items-center">
-              <div className="relative mb-6">
-                <div className="relative flex items-center justify-center">
-                  {userData.photoUrl ? (
-                    <img 
-                      src={userData.photoUrl} 
-                      alt="Avatar" 
-                      className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover"
-                    />
-                  ) : (
-                    <div className="w-28 h-28 rounded-full bg-blue-50 flex items-center justify-center border-4 border-white shadow-lg">
-                      <ICONS.WhaleLogo className="w-16 h-16" />
-                    </div>
-                  )}
-                </div>
+              <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center border-4 border-white shadow-lg mb-4">
+                <ICONS.WhaleLogo className="w-14 h-14" />
               </div>
               <h2 className="text-2xl font-black text-slate-900 mb-1">{userData.name}</h2>
-              {userData.username && <p className="text-[#33b5ff] text-xs font-bold mb-4">@{userData.username}</p>}
+              <p className="text-[#33b5ff] text-xs font-bold mb-4">@{userData.username}</p>
               <div className="bg-white/50 border border-white/80 p-3 px-8 rounded-2xl text-center backdrop-blur-sm shadow-sm">
-                <div className="text-slate-400 text-[9px] font-black uppercase mb-0.5">ID</div>
+                <div className="text-slate-400 text-[9px] font-black uppercase mb-0.5">ID АККАУНТА</div>
                 <div className="text-slate-700 font-extrabold text-xs font-mono">#{userData.id}</div>
               </div>
             </div>
           </div>
 
           <div className="glass rounded-[2rem] p-2 space-y-1">
-            <ProfileItem label="История платежей" subLabel="Список покупок" />
-            <ProfileItem label="Наш канал" subLabel="t.me/xmask_vpn" onClick={() => window.open('https://t.me/remnawave', '_blank')} />
-            <ProfileItem label="Служба поддержки" subLabel="Помощь 24/7" onClick={() => {
-              const tg = window.Telegram?.WebApp;
-              if (tg) tg.openTelegramLink('https://t.me/your_support_bot');
-            }} />
+            <ProfileItem label="История платежей" subLabel="Пусто" />
+            <ProfileItem label="Наш канал" subLabel="t.me/remnawave" />
+            <ProfileItem label="Поддержка" subLabel="Написать менеджеру" />
           </div>
+          
+          {isDemo && (
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-center">
+              <p className="text-amber-700 text-[10px] font-black uppercase tracking-wider">Режим демонстрации</p>
+              <p className="text-amber-600/70 text-[10px] mt-1">Данные пользователя не загружены из Telegram API</p>
+            </div>
+          )}
         </div>
       );
       default: return <Dashboard onRenew={() => setActiveView('payment')} />;
@@ -104,6 +93,22 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-5 pt-8 pb-32 relative overflow-hidden flex flex-col">
+      {/* Success Notification */}
+      {showSuccess && (
+        <div className="fixed top-6 left-5 right-5 z-[100] animate-in slide-in-from-top-full duration-500">
+          <div className="bg-emerald-500 text-white p-4 rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center gap-3">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div>
+              <p className="font-black text-xs uppercase">Оплата прошла успешно!</p>
+              <p className="text-[10px] opacity-80 font-bold">Подписка будет продлена в течение минуты</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Background Decor */}
       <div className="absolute top-[-5%] left-[-15%] w-[350px] h-[350px] bg-[#33b5ff]/10 rounded-full blur-[120px] pointer-events-none animate-float"></div>
       <div className="absolute bottom-[-5%] right-[-15%] w-[350px] h-[350px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none animate-float" style={{ animationDelay: '2s' }}></div>
 
@@ -114,6 +119,7 @@ const App: React.FC = () => {
           </div>
           <span className="font-black text-xl tracking-tighter text-slate-900 italic">X-MASK</span>
         </div>
+        {isDemo && <span className="text-[10px] font-black bg-blue-100 text-[#33b5ff] px-3 py-1 rounded-full uppercase">Demo</span>}
       </header>
 
       <main className="relative z-10 flex-1">
@@ -157,7 +163,7 @@ const ProfileItem: React.FC<{ label: string; subLabel: string; onClick?: () => v
 const NavButton: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
   <button 
     onClick={onClick}
-    className={`flex items-center justify-center transition-all duration-500 px-6 py-3.5 rounded-full ${active ? 'bg-[#33b5ff] text-white shadow-xl shadow-blue-400/30 flex-[1.6]' : 'text-slate-400 flex-1'}`}
+    className={`flex items-center justify-center transition-all duration-500 px-6 py-3.5 rounded-full ${active ? 'bg-[#33b5ff] text-white shadow-xl shadow-blue-400/40 flex-[1.6]' : 'text-slate-400 flex-1'}`}
   >
     <div className="flex items-center justify-center gap-2">
       {icon}
