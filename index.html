@@ -8,10 +8,10 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Tailwind CSS (Play CDN) with config -->
+    <!-- Tailwind CSS (Play CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
+        window.tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
@@ -23,8 +23,7 @@
         }
     </script>
 
-    <!-- Babel Standalone: Компилирует TSX/JSX прямо в браузере. 
-         Необходимо для запуска проекта на GitHub Pages без предварительной сборки (Vite/Webpack). -->
+    <!-- Babel Standalone for runtime transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Font Montserrat -->
@@ -71,9 +70,9 @@
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom": "https://esm.sh/react-dom@^19.2.4",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/"
   }
@@ -90,19 +89,26 @@
     <div id="root"></div>
     
     <!-- 
-      Используем text/babel вместо module. 
-      Babel сам подгрузит файл через fetch (игнорируя MIME-тип) и скомпилирует его.
+      ВАЖНО: Мы НЕ используем data-type="module". 
+      Это позволяет Babel загружать .tsx через XHR/Fetch, обходя проверку MIME-типов браузером.
     -->
-    <script type="text/babel" data-type="module" data-presets="typescript,react" src="index.tsx"></script>
+    <script type="text/babel" data-presets="typescript,react" src="index.tsx"></script>
     
     <script>
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('loading-screen');
-            if(loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 400);
+        // Скрываем загрузчик только когда React реально что-то отрендерил
+        const checkInit = setInterval(() => {
+            const root = document.getElementById('root');
+            if (root && root.children.length > 0) {
+                const loader = document.getElementById('loading-screen');
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 400);
+                }
+                clearInterval(checkInit);
             }
-        });
+        }, 100);
+        // Ограничитель времени загрузки
+        setTimeout(() => clearInterval(checkInit), 10000);
     </script>
 </body>
 </html>
